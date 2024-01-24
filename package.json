@@ -1,9 +1,10 @@
 {
-  "name": "democom-custom-ng-select",
+  "name": "ngx-custom-ng-select",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:play": "ng serve --project playground",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -18,11 +19,16 @@
     "@angular/platform-browser": "^16.2.0",
     "@angular/platform-browser-dynamic": "^16.2.0",
     "@angular/router": "^16.2.0",
+    "@angular/material": "^16.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.13.0"
+    "zone.js": "~0.13.0",
+    "@ng-select/ng-select": "^11.1.1",
+    "object-path": "0.11.8",
+    "@types/object-path": "0.11.1"
   },
   "devDependencies": {
+    "@angular-devkit/build-angular": "^16.2.11",
     "@angular/cli": "^16.2.10",
     "@angular/compiler-cli": "^16.2.0",
     "@types/jasmine": "~4.3.0",
@@ -32,6 +38,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "ng-packagr": "^16.2.0",
     "typescript": "~5.1.3"
   }
 }

@@ -1,0 +1,33 @@
+<h3>Ng select with pagination and scrollToEnd event with initial value</h3>
+<h5>Current page: {{ page }}, current per_page: {{ per_page }}</h5>
+<h5>Total array dim: {{ exampleArray.length }}, total pages: {{ totalPages }}</h5>
+<h5>Searching value: {{ searchParams }}</h5>
+<div *ngIf="canRenderDropdown">
+  <lib-ngx-custom-ng-select #customNgSelect
+                            [items]="exampleArray"
+                            [bindLabel]="'email'"
+                            [bindValue]="'index'"
+                            [selectedItem]="selectedItem"
+                            [initLoadItems]="initArrayValues"
+                            [searchExistingItemCallback]="searchSpecificCallback"
+                            [scrollToEndCallback]="scrollToEndArrayCallback"
+                            [searchingCallback]="searchingCallback"
+                            [multiple]="isMultiple"
+                            (loadItemsEvent)="overWriteArray($event)"
+                            (searchExistingItemEvent)="setSpecificValue($event)"
+                            (scrollToEndEvent)="concatArray($event)"
+                            (searchingParamsEvent)="changeSearchingParams($event)"
+                            (searchingEvent)="overWriteArray($event)"
+                            (selectedItemChangeEvent)="changeSelectedItem($event)">
+  </lib-ngx-custom-ng-select>
+</div>
+<br/>
+<mat-checkbox [ngModel]="isMultiple" (ngModelChange)="changeIsMultiple($event)">
+  Multiple Selection
+</mat-checkbox>
+
+<lib-ngx-custom-ng-select [items]="[1, 5, 10, 20, 30]"
+                          [selectedItem]="per_page"
+                          [returnFullObjectOnChanged]="true"
+                          (selectedItemChangeEvent)="changePerPage($event)">
+</lib-ngx-custom-ng-select>
