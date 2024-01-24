@@ -1,9 +1,6 @@
-import {ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Observable, of, Subscription} from 'rxjs';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {Observable, of, Subscription, tap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {
-  NgxCustomNgSelectComponent
-} from '../../../ngx-custom-ng-select/src/lib/components/ngx-custom-ng-select/ngx-custom-ng-select.component';
 
 @Component({
   selector: 'app-root',
@@ -11,14 +8,12 @@ import {
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
-  title = 'ngx-custom-ng-select';
-  @ViewChild('customNgSelect') customNgSelect: NgxCustomNgSelectComponent;
 
   public page = 0;
   public per_page = 10;
   public totalPages = 200 / this.per_page;
 
-  public searchParams = '';
+  public searchParams: string;
 
   public isMultiple = false;
   public searchValid = false;
@@ -26,7 +21,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public exampleArray: Array<any> = [];
   public selectedItem: number | Array<number> = 24;
 
-  public canRenderDropdown = true;
+  public isInError = false;
 
   public initArrayValues: () => Observable<Array<any>>;
   public searchSpecificCallback: () => Observable<Array<any>>;
@@ -74,7 +69,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.page = 0;
     const firstCurrentEl = this.page * this.per_page;
     const lastCurrentEl = firstCurrentEl + this.per_page;
-    this.exampleArray = [...new Map(evt?.filter(el => el?.email.includes(this.searchParams))?.slice(firstCurrentEl, lastCurrentEl).map(item => [item['index'], item])).values()];
+    if (this.exampleArray?.length == 0 || (!this.selectedItem || (this.selectedItem as Array<any>).length == 0)) {
+      this.exampleArray = [...new Map(evt?.filter(el => el?.email.includes(this.searchParams))?.slice(firstCurrentEl, lastCurrentEl)?.map(item => [item['index'], item])).values()];
+      this.cdr.detectChanges();
+      return;
+    }
+    const selectedItems = (this.selectedItem instanceof Array) ? this.selectedItem.map(el => this.exampleArray.find(item => item?.index == el)) : [this.exampleArray.find(item => item?.index == this.selectedItem)];
+    this.exampleArray = [...new Map(selectedItems?.concat(evt?.filter(el => el?.email.includes(this.searchParams))?.slice(firstCurrentEl, lastCurrentEl))?.map(item => [item['index'], item])).values()];
     this.cdr.detectChanges();
   }
 
@@ -92,8 +93,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public changeIsMultiple(val: boolean) {
     this.isMultiple = val;
-    this.selectedItem = this.isMultiple ? [this.selectedItem] : (this.selectedItem as Array<any>)[0];
-    // this.refreshDropdown();
+    this.selectedItem = (this.isMultiple && this.selectedItem) ? [this.selectedItem] : (this.selectedItem as Array<any>)?.[0];
   }
 
   public changeSelectedItem(val: any) {
@@ -103,17 +103,16 @@ export class AppComponent implements OnInit, OnDestroy {
   public changePerPage(val: any) {
     this.per_page = val;
     this.totalPages = 200 / this.per_page;
-    this.refreshDropdown();
+    this.searchingCallback().pipe(
+      tap(res => this.overWriteArray(res))
+    ).subscribe()
   }
 
-  public changeText(val: boolean) {
-    this.searchValid = val;
-    if (this.searchValid) {
-    }
+  public executeValidation() {
+    this.isInError = (this.selectedItem instanceof Array) ? this.selectedItem.length == 0 : !this.selectedItem;
   }
 
-  public refreshDropdown() {
-    console.log('refresh');
-    this.sub = this.customNgSelect.callSearchingAPI().subscribe();
+  public refreshValidation() {
+    this.isInError = false;
   }
 }

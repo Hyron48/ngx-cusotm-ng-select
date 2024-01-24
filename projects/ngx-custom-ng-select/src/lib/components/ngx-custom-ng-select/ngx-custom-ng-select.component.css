@@ -1,0 +1,19 @@
+:root {
+  --errorBorderColor: red;
+}
+
+ng-select.custom-ng-select {
+  div.ng-select-container {
+    div.ng-value-container {
+      div.ng-placeholder {
+        top: auto !important;
+      }
+    }
+  }
+}
+
+ng-select.ngx-custom-ng-select-error {
+  div.ng-select-container {
+    border: solid 1px var(--errorBorderColor);
+  }
+}

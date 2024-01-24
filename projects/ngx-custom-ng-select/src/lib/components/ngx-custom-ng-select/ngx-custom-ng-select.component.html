@@ -15,7 +15,7 @@
              [editableSearchTerm]="false"
              [disabled]="disabled"
              [clearable]="clearable"
-             [ngClass]="errorStyle ? 'input-error ' + customClass : customClass"
+             [ngClass]="isInError ? 'ngx-custom-ng-select-error ' + customClass : customClass"
              [addTag]="addTag"
              [addTagText]="addTagText"
              dropdownPosition="bottom"

@@ -1,6 +1,33 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import {NgSelectComponent} from '@ng-select/ng-select';
-import {catchError, debounceTime, defer, EMPTY, finalize, fromEvent, map, Observable, of, Subscription, switchMap, tap, throwError} from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  defer,
+  EMPTY,
+  finalize,
+  fromEvent,
+  map,
+  Observable,
+  of,
+  Subscription,
+  switchMap,
+  tap,
+  throwError
+} from 'rxjs';
 import {HttpResponse} from '@angular/common/http';
 import * as objectPath from 'object-path';
 
@@ -9,7 +36,7 @@ import * as objectPath from 'object-path';
   templateUrl: './ngx-custom-ng-select.component.html',
   styleUrls: ['./ngx-custom-ng-select.component.css']
 })
-export class NgxCustomNgSelectComponent implements OnInit, OnChanges, OnDestroy {
+export class NgxCustomNgSelectComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   @ViewChild('term', {static: true, read: NgSelectComponent}) public inputSelect: NgSelectComponent;
 
@@ -19,7 +46,7 @@ export class NgxCustomNgSelectComponent implements OnInit, OnChanges, OnDestroy 
   @Input() selectedItem: any;
   @Input() bindValue: string;
   @Input() bindLabel: string;
-  @Input() selectId: string;
+  @Input() selectId = 'ngx-custom-ng-select';
   @Input() loadingText = 'Loading...';
 
   @Input() virtualScroll = true;
@@ -28,7 +55,8 @@ export class NgxCustomNgSelectComponent implements OnInit, OnChanges, OnDestroy 
   @Input() placeholder: string;
   @Input() disabled = false;
   @Input() clearable = true;
-  @Input() errorStyle = false;
+  @Input() isInError = false;
+  @Input() errorBorderColor = 'red';
   @Input() customClass: Array<string> | string;
   @Input() addTag = false;
   @Input() addTagText: string;
@@ -69,6 +97,10 @@ export class NgxCustomNgSelectComponent implements OnInit, OnChanges, OnDestroy 
     }
   }
 
+  ngAfterViewInit() {
+    document.getElementById(this.selectId)?.style.setProperty('--errorBorderColor', this.errorBorderColor);
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     this.notFound = changes?.notFoundTranslated?.currentValue ?? this.notFound;
     this.name = changes?.name?.currentValue ?? this.name;
@@ -83,7 +115,7 @@ export class NgxCustomNgSelectComponent implements OnInit, OnChanges, OnDestroy 
     this.placeholder = changes?.placeholderTranslated?.currentValue ?? this.placeholder;
     this.disabled = changes?.disabled?.currentValue ?? this.disabled;
     this.clearable = changes?.clearable?.currentValue ?? this.clearable;
-    this.errorStyle = changes?.errorStyle?.currentValue ?? this.errorStyle;
+    this.isInError = changes?.errorStyle?.currentValue ?? this.isInError;
     this.customClass = changes?.customClass?.currentValue ?? this.customClass;
     this.addTag = changes?.addTag?.currentValue ?? this.addTag;
     this.addTagText = changes?.addTagText?.currentValue ?? this.addTagText;
@@ -106,47 +138,19 @@ export class NgxCustomNgSelectComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   public loadItems(): void {
-    if (this.initLoadItems) {
+    if (!!this.initLoadItems) {
       this.loading = true;
-      const sb = this.initLoadItems().pipe(
-        tap((data: HttpResponse<any>) => {
-          this.loading = false;
-          this.loadItemsEvent.emit(data);
-        }),
-        switchMap(() => this.getExistingItem()),
-        catchError(error => {
-          this.loading = false;
-          return throwError(error);
-        }),
-      ).subscribe();
+      const sb = this.getInitLoadItemsCallback().subscribe();
       this.subscriptions.push(sb);
     }
   }
 
   public scrollToEnd() {
-    if (this.scrollToEndCallback) {
+    if (!!this.scrollToEndCallback) {
       this.loading = true;
-      const sb = this.scrollToEndCallback().pipe(
-        tap((data: HttpResponse<any>) => {
-          this.loading = false;
-          this.scrollToEndEvent?.emit(data);
-        }),
-        catchError((err) => {
-          this.loading = false;
-          console.error(err);
-          return of(null);
-        })
-      ).subscribe();
+      const sb = this.getScrollToEndCallback().subscribe();
       this.subscriptions.push(sb);
     }
-  }
-
-  public resetList() {
-    this.resetEvent.emit(true);
-  }
-
-  public getLabel(item: any): string {
-    return item && objectPath.get(item, this.bindLabel);
   }
 
   public search(): void {
@@ -156,36 +160,27 @@ export class NgxCustomNgSelectComponent implements OnInit, OnChanges, OnDestroy 
         return event.target.value;
       }),
       debounceTime(500),
-    ).subscribe(text => {
+      switchMap(text => {
         if (!this.searchingCallback) {
-          return;
+          return of({});
         }
         if (text?.length > 1) {
           this.loading = true;
           this.cdr.detectChanges();
-          this.callSearchingAPI().subscribe();
-        } else {
-          this.loadItems();
+          return this.getSearchingItemsCallback();
         }
-      }
-    );
+        return this.getInitLoadItemsCallback();
+      })
+    ).subscribe();
     this.subscriptions.push(sb);
   }
 
-  public callSearchingAPI() {
-    return this.searchingCallback().pipe(
-      switchMap((response) => {
-        this.loading = false;
-        this.cdr.detectChanges();
-        this.searchingEvent.emit(response);
-        return this.getExistingItem();
-      }),
-      catchError((error) => {
-        this.loading = false;
-        console.error(error);
-        return throwError(() => error);
-      })
-    );
+  public resetList() {
+    this.resetEvent.emit(true);
+  }
+
+  public getLabel(item: any): string {
+    return item && objectPath.get(item, this.bindLabel);
   }
 
   // Ng-select functions
@@ -199,6 +194,7 @@ export class NgxCustomNgSelectComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   public onClose() {
+    this.searchingParamsEvent.emit(undefined);
     this.closeEvent.emit(true);
   }
 
@@ -231,5 +227,48 @@ export class NgxCustomNgSelectComponent implements OnInit, OnChanges, OnDestroy 
       !!this.searchExistingItemCallback &&
       this.searchExistingItemEvent &&
       !isElementsAlreadyPresent);
+  }
+
+  private getInitLoadItemsCallback() {
+    return this.initLoadItems().pipe(
+      tap((data: HttpResponse<any>) => {
+        this.loading = false;
+        this.loadItemsEvent.emit(data);
+      }),
+      switchMap(() => this.getExistingItem()),
+      catchError(error => {
+        this.loading = false;
+        return throwError(() => error);
+      }),
+    )
+  }
+
+  private getScrollToEndCallback() {
+    return this.scrollToEndCallback().pipe(
+      tap((data: HttpResponse<any>) => {
+        this.loading = false;
+        this.scrollToEndEvent?.emit(data);
+      }),
+      catchError((err) => {
+        this.loading = false;
+        console.error(err);
+        return of(null);
+      })
+    )
+  }
+
+  private getSearchingItemsCallback() {
+    return this.searchingCallback().pipe(
+      tap((response) => {
+        this.loading = false;
+        this.cdr.detectChanges();
+        this.searchingEvent.emit(response);
+      }),
+      catchError((error) => {
+        this.loading = false;
+        console.error(error);
+        return throwError(() => error);
+      })
+    );
   }
 }

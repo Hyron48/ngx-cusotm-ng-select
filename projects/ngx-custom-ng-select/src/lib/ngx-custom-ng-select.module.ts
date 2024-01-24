@@ -4,7 +4,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import {FormsModule} from '@angular/forms';
 import {ShowIfTruncatedDirective} from './directives/show-if-truncated.directive';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {NgClass, NgIf, NgTemplateOutlet} from '@angular/common';
+import {NgClass, NgIf, NgStyle, NgTemplateOutlet} from '@angular/common';
 
 
 
@@ -13,14 +13,15 @@ import {NgClass, NgIf, NgTemplateOutlet} from '@angular/common';
     NgxCustomNgSelectComponent,
     ShowIfTruncatedDirective
   ],
-  imports: [
-    NgSelectModule,
-    FormsModule,
-    MatTooltipModule,
-    NgClass,
-    NgIf,
-    NgTemplateOutlet
-  ],
+    imports: [
+        NgSelectModule,
+        FormsModule,
+        MatTooltipModule,
+        NgClass,
+        NgIf,
+        NgTemplateOutlet,
+        NgStyle
+    ],
   exports: [
     NgxCustomNgSelectComponent
   ]
