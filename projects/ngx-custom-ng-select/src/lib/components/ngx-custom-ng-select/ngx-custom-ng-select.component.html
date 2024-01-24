@@ -1,0 +1,40 @@
+<form #f="ngForm">
+  <ng-select notFoundText="{{ notFound }}"
+             #term="ngModel"
+             [id]="selectId"
+             [name]="name"
+             [items]="items"
+             [(ngModel)]="selectedItem"
+             [bindValue]="bindValue"
+             [bindLabel]="bindLabel"
+             [loading]="loading"
+             [loadingText]="loadingText"
+             [virtualScroll]="virtualScroll"
+             [bufferAmount]="bufferDim"
+             [multiple]="multiple"
+             [editableSearchTerm]="false"
+             [disabled]="disabled"
+             [clearable]="clearable"
+             [ngClass]="errorStyle ? 'input-error ' + customClass : customClass"
+             [addTag]="addTag"
+             [addTagText]="addTagText"
+             dropdownPosition="bottom"
+             placeholder="{{placeholder}}"
+             class="custom-ng-select"
+             (change)="selectedItemChange($event)"
+             (scrollToEnd)="scrollToEnd()"
+             (clear)="resetList()"
+             (focus)="onFocus()"
+             (open)="onOpen()"
+             (close)="onClose()">
+    <ng-container *ngIf="headerTemplate">
+      <ng-template ng-header-tmp>
+        <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+      </ng-template>
+    </ng-container>
+    <ng-template ng-option-tmp let-item="item">
+      <div [matTooltip]="item && item[bindLabel]" tooltipShowIfTruncated matTooltipPosition="right"
+           class="text-overflow-hidden">{{getLabel(item)}}</div>
+    </ng-template>
+  </ng-select>
+</form>
