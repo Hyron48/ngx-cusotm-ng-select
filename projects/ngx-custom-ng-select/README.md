@@ -2,23 +2,81 @@
 
 This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.0.
 
-## Code scaffolding
+## Installation
 
-Run `ng generate component component-name --project ngx-custom-ng-select` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ngx-custom-ng-select`.
-> Note: Don't forget to add `--project ngx-custom-ng-select` or else it will be added to the default project in your `angular.json` file. 
+`npm install ngx-custom-ng-select`
 
-## Build
+## Usage
 
-Run `ng build ngx-custom-ng-select` to build the project. The build artifacts will be stored in the `dist/` directory.
+- .ts
 
-## Publishing
+```ts
+export class AppComponent {
 
-After building your library with `ng build ngx-custom-ng-select`, go to the dist folder `cd dist/ngx-custom-ng-select` and run `npm publish`.
+  public initArrayValues: () => Observable<Array<any>>;
+  public searchSpecificCallback: () => Observable<Array<any>>;
+  public scrollToEndArrayCallback: () => Observable<Array<any>>;
+  public searchingCallback: () => Observable<Array<any>>;
 
-## Running unit tests
+  initArrayValues = this.getInitValues.bind(this);
+  searchSpecificCallback = this.getInitValues.bind(this);
+  scrollToEndArrayCallback = this.simulateScrollToEndCallback.bind(this);
+  searchingCallback = this.searchingCallbackValues.bind(this);
 
-Run `ng test ngx-custom-ng-select` to execute the unit tests via [Karma](https://karma-runner.github.io).
+}
+```
 
-## Further help
+- .html
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+```html
+
+<lib-ngx-custom-ng-select #customNgSelect
+                          [selectId]="'testing-custom-ng-select'"
+                          [items]="exampleArray"
+                          [bindLabel]="'email'"
+                          [bindValue]="'index'"
+                          [selectedItem]="selectedItem"
+                          [initLoadItems]="initArrayValues"
+                          [searchExistingItemCallback]="searchSpecificCallback"
+                          [scrollToEndCallback]="scrollToEndArrayCallback"
+                          [searchingCallback]="searchingCallback"
+                          [multiple]="isMultiple"
+                          [isInError]="isInError"
+                          [errorBorderColor]="'red'"
+                          [placeholder]="'Insert a value'"
+                          (focusEvent)="refreshValidation()"
+                          (loadItemsEvent)="overWriteInitArray($event)"
+                          (searchExistingItemEvent)="setSpecificValue($event)"
+                          (scrollToEndEvent)="concatArray($event)"
+                          (searchingParamsEvent)="changeSearchingParams($event)"
+                          (searchingEvent)="overWriteSearchingArray($event)"
+                          (selectedItemChangeEvent)="changeSelectedItem($event)">
+</lib-ngx-custom-ng-select>
+```
+
+| Option                        | Description                                                                                                                                      | Type                          | Default Value           |
+|-------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|-------------------------|
+| `[notFound]`                  | Message when no result found                                                                                                                     | string                        | `'No result'`           |
+| `[name]`                      | Name of html ng-select element                                                                                                                   | string                        | `default-custom-select` |
+| `[items]`                     | Array of object that ng-select uses as values                                                                                                    | Array of any                  | ``                      |
+| `[selectedItem]`              | Selected item of ng-select. It can be single or array of object                                                                                  | any                           | ``                      |
+| `[bindValue]`                 | Name of the object attribute that represents the object's value                                                                                  | string                        | ``                      |
+| `[bindLabel]`                 | Name of the object attribute that is shown in the ng-select                                                                                      | string                        | ``                      |
+| `[selectId]`                  | Id of html ng-select element                                                                                                                     | string                        | `ngx-custom-ng-select`  |
+| `[loadingText]`               | Text that is displayed in ng-select when loading items                                                                                           | string                        | `Loading...`            |
+| `[virtualScroll]`             | Enable virtual scroll to load only the elements visible in the ng-slect viewport                                                                 | boolean                       | `true`                  |
+| `[bufferDim]`                 | Virtual scroll buffer size                                                                                                                       | number                        | `1`                     |
+| `[multiple]`                  | Determines whether the ng-select will have only one selectedItem or can have more                                                                | boolean                       | `false`                 |
+| `[placeholder]`               | Text visible in the ng-select input when not even an element has been selected                                                                   | string                        | ``                      |
+| `[disabled]`                  | Determines whether ng-select is enabled or not                                                                                                   | boolean                       | `false`                 |
+| `[clearable]`                 | Allow to clear selected value                                                                                                                    | boolean                       | `true`                  |
+| `[isInError]`                 | Determines whether to highlight the edge of the input with a border                                                                              | boolean                       | `false`                 |
+| `[errorBorderColor]`          | border color of the failing input. The color can be represented in hexadecimal or simple string                                                  | string                        | `red`                   |
+| `[customClass]`               | Additional html classes for any custom styles                                                                                                    | (Array of string) or (string) | ``                      |
+| `[addTag]`                    | Allows to create custom options                                                                                                                  | boolean                       | `false`                 |
+| `[addTagText]`                | Set custom text when using tagging                                                                                                               | string                        | ``                      |
+| `[returnFullObjectOnChanged]` | when active, when the value is returned, the entire object will be returned instead of just the bindValue                                        | boolean                       | `false`                 |
+| `[isStaticItem]`              | If active, you will not have the option to select/change the selectedItem                                                                        | boolean                       | `false`                 |
+| `[headerTemplate]`            | Template for a possible custom header                                                                                                            | TemplateRef of any            | ``                      |
+| `[initLoadItems]`             | Callback to pass in input. It will be executed in the ngOnInit of ng-select                                                                      | () => Observable of any       | ``                      |
+| `(loadItemsEvent)`            | If `[initLoadItems]` succeeds, you will be notified of the returned values. **it is the calling component's task to assign values to** `[items]` | () => Observable of any       | ``                      |

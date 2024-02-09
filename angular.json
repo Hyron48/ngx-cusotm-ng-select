@@ -58,6 +58,9 @@
             "main": "projects/playground/src/main.ts",
             "polyfills": "projects/playground/src/polyfills.ts",
             "tsConfig": "projects/playground/tsconfig.app.json",
+            "allowedCommonJsDependencies": [
+              "object-path"
+            ],
             "assets": [
               "projects/playground/src/favicon.ico",
               "projects/playground/src/assets"

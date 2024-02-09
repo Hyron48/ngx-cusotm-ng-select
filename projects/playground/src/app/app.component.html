@@ -17,11 +17,11 @@
                           [errorBorderColor]="'pink'"
                           [placeholder]="'Insert a value'"
                           (focusEvent)="refreshValidation()"
-                          (loadItemsEvent)="overWriteArray($event)"
+                          (loadItemsEvent)="overWriteInitArray($event)"
                           (searchExistingItemEvent)="setSpecificValue($event)"
                           (scrollToEndEvent)="concatArray($event)"
                           (searchingParamsEvent)="changeSearchingParams($event)"
-                          (searchingEvent)="overWriteArray($event)"
+                          (searchingEvent)="overWriteSearchingArray($event)"
                           (selectedItemChangeEvent)="changeSelectedItem($event)">
 </lib-ngx-custom-ng-select>
 <br/>

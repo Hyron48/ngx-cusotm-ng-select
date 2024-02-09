@@ -16,7 +16,6 @@ export class AppComponent implements OnInit, OnDestroy {
   public searchParams: string;
 
   public isMultiple = false;
-  public searchValid = false;
 
   public exampleArray: Array<any> = [];
   public selectedItem: number | Array<number> = 24;
@@ -50,6 +49,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public simulateScrollToEndCallback() {
+    console.log('pages > ', this.page, this.totalPages);
     if (this.page < this.totalPages) {
       this.page++;
       return this.http.get<Array<any>>('assets/user-list.json');
@@ -65,15 +65,18 @@ export class AppComponent implements OnInit, OnDestroy {
     this.searchParams = event;
   }
 
-  public overWriteArray(evt: Array<any>) {
+  public overWriteInitArray(evt: Array<any>) {
     this.page = 0;
     const firstCurrentEl = this.page * this.per_page;
     const lastCurrentEl = firstCurrentEl + this.per_page;
-    if (this.exampleArray?.length == 0 || (!this.selectedItem || (this.selectedItem as Array<any>).length == 0)) {
-      this.exampleArray = [...new Map(evt?.filter(el => el?.email.includes(this.searchParams))?.slice(firstCurrentEl, lastCurrentEl)?.map(item => [item['index'], item])).values()];
-      this.cdr.detectChanges();
-      return;
-    }
+    this.exampleArray = [...new Map(evt?.slice(firstCurrentEl, lastCurrentEl)?.map(item => [item['index'], item])).values()];
+    this.cdr.detectChanges();
+  }
+
+  public overWriteSearchingArray(evt: Array<any>) {
+    this.page = 0;
+    const firstCurrentEl = this.page * this.per_page;
+    const lastCurrentEl = firstCurrentEl + this.per_page;
     const selectedItems = (this.selectedItem instanceof Array) ? this.selectedItem.map(el => this.exampleArray.find(item => item?.index == el)) : [this.exampleArray.find(item => item?.index == this.selectedItem)];
     this.exampleArray = [...new Map(selectedItems?.concat(evt?.filter(el => el?.email.includes(this.searchParams))?.slice(firstCurrentEl, lastCurrentEl))?.map(item => [item['index'], item])).values()];
     this.cdr.detectChanges();
@@ -82,7 +85,12 @@ export class AppComponent implements OnInit, OnDestroy {
   public concatArray(evt: Array<any>) {
     const firstCurrentEl = this.page * this.per_page;
     const lastCurrentEl = firstCurrentEl + this.per_page;
-    this.exampleArray = [...new Map(this.exampleArray.concat(evt?.filter(el => el?.email.includes(this.searchParams))?.slice(firstCurrentEl, lastCurrentEl)).map(item => [item['index'], item])).values()];
+
+    if (this.searchParams) {
+      this.exampleArray = [...new Map(this.exampleArray.concat(evt?.filter(el => el?.email.includes(this.searchParams))?.slice(firstCurrentEl, lastCurrentEl)).map(item => [item['index'], item])).values()];
+    } else {
+      this.exampleArray = [...new Map(this.exampleArray.concat(evt?.slice(firstCurrentEl, lastCurrentEl)).map(item => [item['index'], item])).values()];
+    }
     this.cdr.detectChanges();
   }
 
@@ -104,7 +112,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.per_page = val;
     this.totalPages = 200 / this.per_page;
     this.searchingCallback().pipe(
-      tap(res => this.overWriteArray(res))
+      tap(res => this.overWriteInitArray(res))
     ).subscribe()
   }
 
