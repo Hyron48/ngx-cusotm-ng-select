@@ -75,7 +75,7 @@ export class NgxCustomNgSelectComponent implements OnInit, AfterViewInit, OnChan
   @Output() loadItemsEvent = new EventEmitter<any>();
   @Output() scrollToEndEvent = new EventEmitter<any>();
   @Output() searchingEvent = new EventEmitter<any>();
-  @Output() searchingParamsEvent = new EventEmitter<any>();
+  @Output() searchingParamsEvent = new EventEmitter<string>();
   @Output() searchExistingItemEvent = new EventEmitter<any>();
   @Output() selectedItemChangeEvent = new EventEmitter<any>();
 
