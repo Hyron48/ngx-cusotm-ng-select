@@ -2,6 +2,8 @@
 
 This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.0.
 
+This is an extended version of the classic ng-select. It allows you to define callbacks for data loading, such as pagination, quickly and easily. It also allows you to integrate search with API calls.
+
 ## Installation
 
 `npm install ngx-custom-ng-select`
