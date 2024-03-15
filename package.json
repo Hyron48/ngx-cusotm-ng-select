@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "start:play": "ng serve --project playground",
-    "build": "ng build",
+    "build": "ng build ngx-custom-ng-select",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
